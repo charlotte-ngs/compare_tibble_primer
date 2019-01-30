@@ -1,0 +1,52 @@
+---
+title: "Differences Between Columns Of A Tibble"
+output: html_notebook
+---
+
+
+## Disclaimer
+This notebook summarizes experiments on finding differences between columns of a tibble.
+
+
+## Experiments
+In a first step, we are looking at the result of `all_equal()`.
+
+When trying to find the differences, it might be beneficial to do joins between the columns of interest.
+
+
+## Example Dataset
+The following data set is used as an example to show a few results from our experiments.
+
+```{r}
+tbl_rc <- tibble::tibble(Tier = c("CH 120.0976.8774.7",
+                                  "CH 120.0976.8775.2",
+                                  "CH 120.0976.8776.6",
+                                  "CH 120.0976.8777.0"),
+                         RCAlt = c("07",
+                                   "INC",
+                                   "INC",
+                                   "INC"),
+                         RCNeu = c("07",
+                                   "INC",
+                                   "KR",
+                                   "INC"),
+                         Nak0 = c(0,0,1,0))
+tbl_rc
+```
+
+
+## Joins
+Find the differences with joins
+
+```{r}
+library(dplyr)
+tbl_rc_alt <- tbl_rc %>% select(Tier, RCAlt)
+tbl_rc_neu <- tbl_rc %>% select(Tier, RCNeu)
+dplyr::anti_join(tbl_rc_alt, tbl_rc_neu, by = c("Tier" = "Tier", "RCAlt" = "RCNeu"))
+```
+
+
+```{r, echo=FALSE, results='asis'}
+rmddochelper::get_latest_change()
+```
+
