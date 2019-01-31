@@ -1,6 +1,8 @@
 ---
 title: "Differences Between Columns Of A Tibble"
-output: html_notebook
+output:
+  html_document:
+    df_print: paged
 ---
 
 
@@ -30,23 +32,49 @@ tbl_rc <- tibble::tibble(Tier = c("CH 120.0976.8774.7",
                                    "INC",
                                    "KR",
                                    "INC"),
-                         Nak0 = c(0,0,1,0))
+                         Nako = c(0,0,1,0))
 tbl_rc
 ```
+
+
+## Equality
+Can we use `all.equal()` to get a comparison between the column `RCAlt` and `RCNeu`. A first idea is to split the existing tibble `tbl_rc` into two tibbles
+
+```{r}
+library(dplyr)
+tbl_rc_alt <- tbl_rc %>% select(Tier, RCAlt, Nako) %>% mutate(BreedCode = RCAlt) %>% select(Tier, BreedCode, Nako)
+tbl_rc_neu <- tbl_rc %>% select(Tier, RCNeu, Nako) %>% mutate(BreedCode = RCNeu) %>% select(Tier, BreedCode, Nako)
+```
+
+We are using `tbl_rc_alt` and `tbl_rc_neu` as arguments for `all_equal()`.
+
+```{r}
+dplyr::all_equal(tbl_rc_alt, tbl_rc_neu)
+```
+
+This result of `all_equal()` is a string telling us on which row the difference between the tibbles occured. With that information we can inspect both tibbles and see the difference. 
+
+```{r}
+tbl_rc_alt[3,]
+```
+
+```{r}
+
+tbl_rc_neu[3,]
+```
+
+But the result of `all_equal()` is rather difficult to be used for further computations.
 
 
 ## Joins
 Find the differences with joins
 
 ```{r}
-library(dplyr)
-tbl_rc_alt <- tbl_rc %>% select(Tier, RCAlt)
-tbl_rc_neu <- tbl_rc %>% select(Tier, RCNeu)
-dplyr::anti_join(tbl_rc_alt, tbl_rc_neu, by = c("Tier" = "Tier", "RCAlt" = "RCNeu"))
+dplyr::anti_join(tbl_rc_alt, tbl_rc_neu, by = c("Tier" = "Tier", "BreedCode" = "BreedCode"))
 ```
 
 
 ```{r, echo=FALSE, results='asis'}
-rmddochelper::get_latest_change()
+cat(rmddochelper::get_latest_change(), "\n")
 ```
 
